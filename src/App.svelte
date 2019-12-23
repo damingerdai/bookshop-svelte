@@ -6,6 +6,14 @@
 	let description = '';
 
 	let books = [];
+	let booksInCart = [];
+
+	$: booksNumInCart = booksInCart.length;
+	$: totalCheckoutPrice = booksInCart.reduce(
+		(sum, book) => sum + book.price,
+		0
+	)
+	
 	function handleAddBook() {
 		books = books.concat({
 			title,
@@ -15,6 +23,11 @@
 		title = '';
 		price = 0;
 		description = '';
+	}
+
+	function handleAddToCart(title) {
+		let bookNeededToBeAdded = books.find(book => book.title == title);
+		booksInCart = booksInCart.concat(bookNeededToBeAdded);
 	}
 </script>
 
@@ -30,11 +43,25 @@
 		<textarea name="description" id="description" rows="3" bind:value={description}></textarea>
 		<div>
 			<button on:click={handleAddBook}>add book</button>
-		</div>
-		{#each books as book} 
-			<BookCard title={book.title} price={book.price} description={book.description} />
+		</div>	
+	</section>
+	<section>
+		<h2>购物车</h2>
+		<div>书本总数: {booksNumInCart}</div>
+		<div>订单金额：{totalCheckoutPrice}</div>
+		{ #if booksInCart.length === 0}
+			<p>购物车空的哦</p>
+		{:else}
+			{#each booksInCart as { title, price }}
+	    		<div>名称: {title}, 价钱: {price}</div>
+    		{/each}
+		{/if}
+	</section>
+	<section>
+		<h2>书单</h2>
+		{#each books as {title, price, description}}
+			<BookCard {title} {price} {description} {handleAddToCart}/>
 		{/each}
-		
 	</section>
 </main>
 
